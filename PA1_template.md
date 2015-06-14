@@ -7,46 +7,74 @@ output:
 
 ##Loading and preprocessing the data
 
-```{r}
+
+```r
 activitydata <- read.csv(unz("activity.zip", "activity.csv"))
 stepsbydate <- aggregate(steps ~ date, data = activitydata, FUN = "sum")
 ```
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 hist(stepsbydate$steps)
 ```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
 the mean steps by day is
-```{r}
+
+```r
 mean(stepsbydate$steps)
 ```
+
+```
+## [1] 10766.19
+```
 The median steps by day is
-```{r}
+
+```r
 median(stepsbydate$steps)
 ```
 
+```
+## [1] 10765
+```
+
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 meanstepsbyinterval <- aggregate(steps ~ interval, data = activitydata, FUN = "mean")
 ```
 
 Time series plot
-```{r}
+
+```r
 plot(meanstepsbyinterval$interval, meanstepsbyinterval$steps, type = "l")
 ```
 
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
+
 Average 5-minute interval, on average across all the days in the dataset, that contains the maximum number of steps
-```{r}
+
+```r
 maxstepsbyinterval <- subset(meanstepsbyinterval,steps == max(meanstepsbyinterval$steps))
 maxstepsbyinterval$interval
+```
+
+```
+## [1] 835
 ```
 
 ## Imputing missing values
 ###Missing values
 The total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
-```{r}
+
+```r
 sum(is.na(activitydata$steps))
+```
+
+```
+## [1] 2304
 ```
 
 ###strategy for filling in missing values
@@ -54,7 +82,8 @@ Missing values filled in by using the median for that interval. This was selecte
 
 New data set created
 
-```{r}
+
+```r
 medianstepsbyinterval <- aggregate(steps ~ interval, data = activitydata, FUN = "median")
 replacedactivitydata <- activitydata
 for (i in 1:length(replacedactivitydata)) {
@@ -64,22 +93,54 @@ for (i in 1:length(replacedactivitydata)) {
 }
 ```
 
+```
+## Warning in replacedactivitydata$steps[i] <-
+## medianstepsbyinterval$steps[replacedactivitydata$interval/5 + : number of
+## items to replace is not a multiple of replacement length
+```
+
+```
+## Warning in replacedactivitydata$steps[i] <-
+## medianstepsbyinterval$steps[replacedactivitydata$interval/5 + : number of
+## items to replace is not a multiple of replacement length
+```
+
+```
+## Warning in replacedactivitydata$steps[i] <-
+## medianstepsbyinterval$steps[replacedactivitydata$interval/5 + : number of
+## items to replace is not a multiple of replacement length
+```
+
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 replacedstepsbydate <- aggregate(steps ~ date, data = replacedactivitydata, FUN = "sum")
 ```
 
 Histogram
-```{r}
+
+```r
 hist(replacedstepsbydate$steps)
 ```
+
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png) 
 the mean steps by day in the replaced data is
-```{r}
+
+```r
 mean(replacedstepsbydate$steps)
 ```
+
+```
+## [1] 10566.81
+```
 The median steps by day in the replaced is
-```{r}
+
+```r
 median(replacedstepsbydate$steps)
+```
+
+```
+## [1] 10682.5
 ```
 
 There is a small decrease in the number of steps per day.
@@ -87,8 +148,8 @@ There is a small decrease in the number of steps per day.
 ##differences in activity patterns between weekdays and weekends
 
 Adding exploration of weekdays versus weekends
-```{r}
 
+```r
 weekpart <- weekdays(as.Date(replacedactivitydata$date))
 for (i in 1:length(weekpart)) {
   if (weekpart[i] %in% c('Saturday','Sunday')) {
@@ -98,13 +159,11 @@ for (i in 1:length(weekpart)) {
   }
 }
 replacedactivitydata$weekpart <- as.factor(weekpart)
-
 ```
 
 Time series plot
-```{r}
 
-
+```r
 meanreplacedstepsbyinterval <- aggregate(steps ~ interval + weekpart, data = replacedactivitydata, FUN = "mean")
 
 
@@ -117,5 +176,6 @@ xyplot(steps ~ interval|  weekpart,
            xlab = "interval",
            ylab = "number of steps",
            layout=c(1,2))
-
 ```
+
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-1.png) 
